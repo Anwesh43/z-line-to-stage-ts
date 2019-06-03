@@ -33,6 +33,46 @@ class ScaleUtil {
     }
 }
 
+class DrawingUtil {
+
+    static drawLine(context : CanvasRenderingContext2D, x1 : number, y1 : number, x2 : number, y2 : number) {
+        context.beginPath()
+        context.moveTo(x1, y1)
+        context.lineTo(x2, y2)
+        context.stroke()
+    }
+
+    static drawZLine(context : CanvasRenderingContext2D, i : number, size : number, w : number, sc1 : number, sc2 : number) {
+        const sc1i : number = ScaleUtil.divideScale(sc1, i, lines)
+        const sc2i : number = ScaleUtil.divideScale(sc2, i, lines)
+        context.save()
+        context.translate(w * sc2i, -size + 2 * size * i)
+        context.rotate(Math.PI / 4 * sc1i)
+        DrawingUtil.drawLine(context, 0, 0, 0, -2 * size * (1 - 2 * i))
+        context.restore()
+    }
+
+    static drawZTLNode(context : CanvasRenderingContext2D, scale : number, i : number) {
+        const gap : number = h / (nodes + 1)
+        const size : number = gap / sizeFactor
+        const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
+        const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
+        const sc21 : number = ScaleUtil.divideScale(sc2, 0, 2)
+        const sc22 : number = ScaleUtil.divideScale(sc2, 1, 2)
+        context.lineCap = 'round'
+        context.lineWidth = Math.min(w, h) / strokeFactor
+        context.strokeStyle = foreColor
+        context.save()
+        context.translate(w / 2, gap * (i + 1))
+        context.rotate(Math.PI / 4 * (1 -sc22))
+        DrawingUtil.drawLine(context, 0, -size, 0, size)
+        for (var j = 0; j < lines; j++) {
+            DrawingUtil.drawZLine(context, j, size, w / 2, sc1, sc21)
+        }
+        context.restore()
+    }
+}
+
 class ZToLineStage {
 
     canvas : HTMLCanvasElement = document.createElement('canvas')
