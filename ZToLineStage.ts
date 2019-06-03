@@ -8,6 +8,7 @@ const strokeFactor : number = 90
 const sizeFactor : number = 2.9
 const foreColor : string = "#1A237E"
 const backColor : string = "#BDBDBD"
+const rotDeg : number = Math.PI / 4
 
 class ScaleUtil {
 
@@ -43,29 +44,36 @@ class DrawingUtil {
     }
 
     static drawZLine(context : CanvasRenderingContext2D, i : number, size : number, w : number, sc1 : number, sc2 : number) {
+        const a : number = size * Math.cos(Math.PI / 4)
+        const b : number = size * Math.sin(Math.PI / 4)
         const sc1i : number = ScaleUtil.divideScale(sc1, i, lines)
         const sc2i : number = ScaleUtil.divideScale(sc2, i, lines)
         context.save()
-        context.translate(w * sc2i, -size + 2 * size * i)
-        context.rotate(Math.PI / 4 * sc1i)
-        DrawingUtil.drawLine(context, 0, 0, 0, -2 * size * (1 - 2 * i))
+        context.translate((w * sc2i - a) * (1 - 2 * i) , -b + 2 * b * (1 - i))
+        context.rotate(-Math.PI / 4 * (1 - sc1i))
+        DrawingUtil.drawLine(context, 0, 0, 2 * size * (1 - 2 * i), 0)
         context.restore()
     }
 
-    static drawZTLNode(context : CanvasRenderingContext2D, scale : number, i : number) {
+    static drawZTLNode(context : CanvasRenderingContext2D, i : number, scale : number) {
         const gap : number = h / (nodes + 1)
         const size : number = gap / sizeFactor
         const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
         const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
         const sc21 : number = ScaleUtil.divideScale(sc2, 0, 2)
         const sc22 : number = ScaleUtil.divideScale(sc2, 1, 2)
+        if (scale > 0 && scale < 1) {
+            console.log(`${sc1}, ${sc2}`)
+        }
         context.lineCap = 'round'
         context.lineWidth = Math.min(w, h) / strokeFactor
         context.strokeStyle = foreColor
         context.save()
         context.translate(w / 2, gap * (i + 1))
+        context.save()
         context.rotate(Math.PI / 4 * (1 -sc22))
         DrawingUtil.drawLine(context, 0, -size, 0, size)
+        context.restore()
         for (var j = 0; j < lines; j++) {
             DrawingUtil.drawZLine(context, j, size, w / 2, sc1, sc21)
         }
@@ -87,7 +95,7 @@ class ZToLineStage {
     }
 
     render() {
-        this.context.fillStyle = foreColor
+        this.context.fillStyle = backColor
         this.context.fillRect(0, 0, w, h)
         this.renderer.render(this.context)
     }
