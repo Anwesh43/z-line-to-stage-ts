@@ -216,3 +216,25 @@ class ZToLine {
         this.curr.startUpdating(cb)
     }
 }
+
+class Renderer {
+
+    ztl : ZToLine = new ZToLine()
+    animator : Animator = new Animator()
+
+    render(context : CanvasRenderingContext2D) {
+        this.ztl.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.ztl.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.ztl.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
